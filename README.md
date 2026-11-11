@@ -20,7 +20,7 @@
 2. 将本仓库 `Assets/Script` 复制到工程 `Assets` 下。**已有项目还必须确认已安装 Unity UI（uGUI）包**：打开 `Window → Package Manager`，点击左上角 `+ → Add package by name…`，输入 `com.unity.ugui`，版本填写 `1.0.0`，点击 Add，等待包安装和脚本重新编译。也可在 Unity Registry 中搜索 `Unity UI` 并安装。
 
    本仓库 `Packages/manifest.json` 已声明依赖，直接打开仓库时由 Unity 解析安装。向已有工程导入时不要覆盖整个 manifest，以免丢失其他依赖；通过 Package Manager 添加即可。若 Console 出现 `UnityEngine.UI`、`EventSystems`、`Button` 找不到的错误，先完成此步骤；若安装失败，需要查看 Package Manager 的实际错误。
-3. 在本机终端执行 `python3 tools/server.py`（Windows 可以用 `py tools/server.py`）。
+3. 按教材第156页，在 Visual Studio 中打开并运行上一章的 C# 服务器工程（只有转发功能的服务器）。客户端默认连接 `127.0.0.1:8888`，服务器必须监听对应地址和端口。本仓库没有上一章服务器源码，不能将此客户端仓库当成完整的课本配套工程；需要另行提供原工程。
 4. 若之前正在运行旧版，先停止 Play，再覆盖更新 `Assets/Script` 全部文件。等待 Unity 编译完成。
 5. 点击顶部菜单 **Chapter 6 → Create Textbook Test Scene**。会创建并保存 `Assets/Scenes/test.unity`（已有同名文件会另取名称，不覆盖），包含 Main Camera、Directional Light、ConnectionDemo、Canvas 和 EventSystem。
 6. 展开 Canvas，可看到 `ConnectButton/Text` 和 `CloseButton/Text`，Inspector 的 On Click 已绑定连接/断开方法。Game 视图是居中并排的“连接服务器”和“断开”按钮，与教材图6-10一致。
@@ -46,5 +46,7 @@ DOTNET_CLI_HOME=/workspace/.tools/dotnet-home DOTNET_CLI_TELEMETRY_OPTOUT=1 /wor
 ```
 
 若受限沙箱报告 `NuGet-Migrations` 命名互斥锁错误，需在支持命名互斥锁的执行环境运行同一命令。
+
+下面的独立 C# 自动化测试会在测试进程内创建临时 TCP 监听器，只用于验证客户端核心逻辑，不是课本服务器，也不替代 Unity 与上一章服务器的联调。
 
 测试使用真实本地 TCP 连接，覆盖成功、拒绝连接、参数错误、多个监听器、移除监听器、重复连接、断开、重连、线程分发和缓冲区。测试不会验证 Unity 编辑器编译或界面，需要在 Unity 中按上述步骤检查。
