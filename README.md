@@ -1,6 +1,6 @@
 # 第二个作业：第6章通用客户端网络模块
 
-依据提供的教材第148～158页，实现 **6.1～6.4**。这是可导入 Unity 的源码包，不是包含编辑器和场景资源的完整 Unity 工程。
+依据提供的教材第148～158页，实现 **6.1～6.4**。仓库包含源码和 Unity 包依赖声明，测试场景通过编辑器菜单生成；不包含 Unity 编辑器或预先生成的场景。
 
 ## 已实现
 
@@ -16,8 +16,10 @@
 
 ## Unity 中运行
 
-1. 在 Unity Hub 创建一个桌面 3D 工程（建议 Unity 2022.3 LTS）。
-2. 将本仓库 `Assets/Script` 复制到工程 `Assets` 下。
+1. 使用 Unity 2022.3 LTS（包括 2022.3.62f3c1）。新建工程后导入代码，或通过 Unity Hub 打开仓库目录。
+2. 将本仓库 `Assets/Script` 复制到工程 `Assets` 下。**已有项目还必须确认已安装 Unity UI（uGUI）包**：打开 `Window → Package Manager`，点击左上角 `+ → Add package by name…`，输入 `com.unity.ugui`，版本填写 `1.0.0`，点击 Add，等待包安装和脚本重新编译。也可在 Unity Registry 中搜索 `Unity UI` 并安装。
+
+   本仓库 `Packages/manifest.json` 已声明依赖，直接打开仓库时由 Unity 解析安装。向已有工程导入时不要覆盖整个 manifest，以免丢失其他依赖；通过 Package Manager 添加即可。若 Console 出现 `UnityEngine.UI`、`EventSystems`、`Button` 找不到的错误，先完成此步骤；若安装失败，需要查看 Package Manager 的实际错误。
 3. 在本机终端执行 `python3 tools/server.py`（Windows 可以用 `py tools/server.py`）。
 4. 若之前正在运行旧版，先停止 Play，再覆盖更新 `Assets/Script` 全部文件。等待 Unity 编译完成。
 5. 点击顶部菜单 **Chapter 6 → Create Textbook Test Scene**。会创建并保存 `Assets/Scenes/test.unity`（已有同名文件会另取名称，不覆盖），包含 Main Camera、Directional Light、ConnectionDemo、Canvas 和 EventSystem。
