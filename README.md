@@ -10,7 +10,7 @@
 - `NetManager.Update()`：从队列取出事件，在调用线程分发。Unity 每帧调用，避免后台线程操作 Unity UI。
 - `NetManager.Close()`：安全关闭；未连接、连接中按教材直接返回。保留发送队列与 isClosing 结构，供后续发送章节接入。
 - `ByteArray`：接收缓冲区基础结构、压缩与扩容。
-- Unity 连接/断开测试界面、可修改的主机和端口；注册并清理监听器。
+- Unity Canvas 并排中文连接/断开按钮，Inspector 可修改主机和端口；注册并清理监听器。
 
 注意：6.5 及之后的 JSON 协议、消息收发、粘包拆包、心跳不在本次照片的完整实现范围内，尚未实现。当前不会主动检测服务器在连接成功后断开的情况；Close 事件表示本地主动关闭。没有发送接口，因此当前没有发送队列排空的执行路径，不能将其视为已完成的延迟关闭功能。
 
@@ -19,10 +19,13 @@
 1. 在 Unity Hub 创建一个桌面 3D 工程（建议 Unity 2022.3 LTS）。
 2. 将本仓库 `Assets/Script` 复制到工程 `Assets` 下。
 3. 在本机终端执行 `python3 tools/server.py`（Windows 可以用 `py tools/server.py`）。
-4. 打开任意场景并按 Play。脚本会自动创建 `ConnectionDemo` 和即时模式 GUI，无需绑定按钮。
-5. 点击 Connect Server，应显示 Connected，Console 打印 OnConnectSucc；重复点击不会重复连接。
-6. 点击 Disconnect，应显示 Closed；再次连接应成功。
-7. 停止服务器后重新连接，应显示 Connect failed。未连接时点击 Disconnect 不应报错。
+4. 若之前正在运行旧版，先停止 Play，再覆盖更新 `Assets/Script` 全部文件。等待 Unity 编译完成。
+5. 点击顶部菜单 **Chapter 6 → Create Textbook Test Scene**。会创建并保存 `Assets/Scenes/test.unity`（已有同名文件会另取名称，不覆盖），包含 Main Camera、Directional Light、ConnectionDemo、Canvas 和 EventSystem。
+6. 展开 Canvas，可看到 `ConnectButton/Text` 和 `CloseButton/Text`，Inspector 的 On Click 已绑定连接/断开方法。Game 视图是居中并排的“连接服务器”和“断开”按钮，与教材图6-10一致。
+7. 按 Play，点击“连接服务器”，Console 打印 OnConnectSucc；重复点击不会重复连接。点击“断开”，Console 打印 OnConnectClose；再次连接应成功。
+8. 停止服务器并在断开后重新连接，Console 应打印 OnConnectFail。未连接时点击“断开”不应报错。
+
+也可直接在空场景按 Play，运行时会自动生成相同的 Canvas，但要交作业时请使用菜单生成并保存场景。主机和端口在 ConnectionDemo 的 Inspector 设置，界面不再显示调试输入框。中文字体优先使用系统微软雅黑、黑体等字体；Windows 通常已具备。
 
 若将 ConnectionDemo 手动挂到物体，只保留一个实例。项目中其他驱动器不要重复调用 NetManager.Update。
 

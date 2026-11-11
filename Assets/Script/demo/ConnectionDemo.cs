@@ -1,16 +1,18 @@
 using UnityEngine;
+using UnityEngine.UI;
 
-// 无需手工绑定按钮：自动创建测试入口，或手工挂到空GameObject。
+// 教材6.4.3：Canvas下两个按钮，网络事件写入Console。
 public sealed class ConnectionDemo : MonoBehaviour
 {
-    string host = "127.0.0.1";
-    string port = "8888";
-    string status = "Ready";
+    [SerializeField] string host = "127.0.0.1";
+    [SerializeField] int port = 8888;
+    public string Status { get; private set; }
+    Font runtimeFont;
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void Bootstrap()
     {
         if (FindObjectOfType<ConnectionDemo>() == null)
-            new GameObject("ConnectionDemo").AddComponent<ConnectionDemo>();
+            ConnectionDemoUI.Create();
     }
     void OnEnable()
     {
@@ -21,26 +23,28 @@ public sealed class ConnectionDemo : MonoBehaviour
     void Update() { NetManager.Update(); }
     public void OnConnectClick()
     {
-        int value;
-        if (!int.TryParse(port, out value) || value < 1 || value > 65535) { status = "Invalid port"; return; }
+        if (port < 1 || port > 65535) { Debug.LogError("端口必须在1～65535之间"); return; }
         if (NetManager.IsConnected || NetManager.IsConnecting) return;
-        status = "Connecting...";
-        NetManager.Connect(host, value);
+        Status = "连接中…";
+        NetManager.Connect(host, port);
     }
     public void OnCloseClick() { NetManager.Close(); }
-    void OnConnectSucc(string err) { status = "Connected"; Debug.Log("OnConnectSucc"); }
-    void OnConnectFail(string err) { status = "Connect failed: " + err; Debug.Log("OnConnectFail " + err); }
-    void OnConnectClose(string err) { status = "Closed"; Debug.Log("OnConnectClose"); }
-    void OnGUI()
+    void OnConnectSucc(string err) { Status = "连接成功"; Debug.Log("OnConnectSucc"); }
+    void OnConnectFail(string err) { Status = "连接失败：" + err; Debug.Log("OnConnectFail " + err); }
+    void OnConnectClose(string err) { Status = "连接已关闭"; Debug.Log("OnConnectClose"); }
+    void Start()
     {
-        GUILayout.BeginArea(new Rect(20, 20, 520, 260), GUI.skin.box);
-        GUILayout.Label("Chapter 6 - TCP Connection Test");
-        host = GUILayout.TextField(host);
-        port = GUILayout.TextField(port);
-        if (GUILayout.Button("Connect Server")) OnConnectClick();
-        if (GUILayout.Button("Disconnect")) OnCloseClick();
-        GUILayout.Label(status);
-        GUILayout.EndArea();
+        // 使用本机中文字体；编辑器保存的场景仍引用Unity内置字体。
+        string[] preferred = { "Microsoft YaHei", "SimHei", "PingFang SC", "Noto Sans CJK SC", "WenQuanYi Zen Hei" };
+        var installed = new System.Collections.Generic.HashSet<string>(Font.GetOSInstalledFontNames());
+        foreach (string name in preferred)
+        {
+            if (!installed.Contains(name)) continue;
+            runtimeFont = Font.CreateDynamicFontFromOSFont(name, 24);
+            foreach (Text text in FindObjectsOfType<Text>())
+                if (text.transform.root.name == "Canvas") text.font = runtimeFont;
+            break;
+        }
     }
     void OnDisable()
     {
@@ -49,4 +53,5 @@ public sealed class ConnectionDemo : MonoBehaviour
         NetManager.RemoveEventListener(NetManager.NetEvent.Close, OnConnectClose);
         NetManager.Close();
     }
+    void OnDestroy() { if (runtimeFont != null) Destroy(runtimeFont); }
 }
